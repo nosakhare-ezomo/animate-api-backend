@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nkiri API Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        pre { font-family: 'Fira Code', monospace; }
+        .gradient-text {
+            background: linear-gradient(to right, #2dd4bf, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen selection:bg-brand-500 selection:text-white">
+    
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-800">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">N</div>
+                <span class="text-xl font-bold tracking-tight">Nkiri API</span>
+            </div>
+            <div class="flex items-center gap-6 text-sm font-medium text-slate-300">
+                <a href="#endpoints" class="hover:text-white transition-colors">Endpoints</a>
+                <a href="#integration" class="hover:text-white transition-colors">Integration</a>
+                <a href="https://github.com/nosakhare-ezomo/animate-api-backend" target="_blank" class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white transition-all">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-32 pb-20 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-20 left-1/4 w-96 h-96 bg-brand-500/20 rounded-full blur-[120px]"></div>
+            <div class="absolute top-40 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]"></div>
+        </div>
+        <div class="max-w-6xl mx-auto px-6 relative z-10 text-center">
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+                The unofficial <span class="gradient-text">Nkiri</span> REST API
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Drop this headless scraper into any website. Search movies, fetch metadata, and extract direct download links in milliseconds. Always live, never cached.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="#endpoints" class="px-8 py-3.5 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all hover:shadow-[0_0_30px_rgba(20,184,166,0.5)]">Explore API</a>
+                <a href="#integration" class="px-8 py-3.5 rounded-full glass hover:bg-slate-800 text-white font-medium transition-all">View Code Examples</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Base URL -->
+    <section class="max-w-6xl mx-auto px-6 mb-16">
+        <div class="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">Base URL</h3>
+                <code class="text-brand-400 text-lg">https://animate-api-backend.onrender.com</code>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                Systems Operational
+            </div>
+        </div>
+    </section>
+
+    <!-- Endpoints -->
+    <main id="endpoints" class="max-w-6xl mx-auto px-6 pb-24 space-y-12">
+        
+        <!-- Endpoint: Search -->
+        <div class="glass rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-gray-800 flex items-center gap-4">
+                <span class="px-3 py-1 rounded bg-blue-500/20 text-blue-400 font-mono text-sm font-bold">GET</span>
+                <h2 class="text-2xl font-bold">/api/search</h2>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Search for movies and TV shows across the Nkiri database. Call this endpoint when the user types in your search box.</p>
+                    
+                    <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Parameters</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-sm">
+                            <code class="text-brand-400 font-mono">q</code>
+                            <span class="text-slate-500">(required)</span>
+                            <span class="text-slate-300">The search query (e.g., <code>avengers</code>).</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-sm">
+                            <code class="text-brand-400 font-mono">page</code>
+                            <span class="text-slate-500">(optional)</span>
+                            <span class="text-slate-300">Page number for pagination. Default is 1.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
+                    <div class="text-slate-500 mb-2">// Request: /api/search?q=avengers</div>
+<pre><span class="text-slate-300">{
+  </span><span class="text-brand-400">"results"</span><span class="text-slate-300">: [
+    {
+      </span><span class="text-brand-400">"title"</span><span class="text-slate-300">: </span><span class="text-green-400">"Avengers Endgame"</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://thenkiri.com.ng/avengers-endgame/"</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"thumbnail"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://..."</span><span class="text-slate-300">
+    }
+  ],
+  </span><span class="text-brand-400">"count"</span><span class="text-slate-300">: </span><span class="text-purple-400">10</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"query"</span><span class="text-slate-300">: </span><span class="text-green-400">"avengers"</span><span class="text-slate-300">
+}</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint: Movie Info -->
+        <div class="glass rounded-2xl overflow-hidden">
+            <div class="p-6 border-b border-gray-800 flex items-center gap-4">
+                <span class="px-3 py-1 rounded bg-blue-500/20 text-blue-400 font-mono text-sm font-bold">GET</span>
+                <h2 class="text-2xl font-bold">/api/movie</h2>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Fetch detailed metadata for a specific movie page, including high-res posters, descriptions, and release details.</p>
+                    
+                    <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Parameters</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-sm">
+                            <code class="text-brand-400 font-mono">url</code>
+                            <span class="text-slate-500">(required)</span>
+                            <span class="text-slate-300">The full Nkiri URL for the movie, returned from the search endpoint.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
+                    <div class="text-slate-500 mb-2">// Request: /api/movie?url=https://thenkiri.com.ng/avengers-endgame/</div>
+<pre><span class="text-slate-300">{
+  </span><span class="text-brand-400">"title"</span><span class="text-slate-300">: </span><span class="text-green-400">"Avengers Endgame"</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://thenkiri.com.ng/avengers-endgame/"</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"thumbnail"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://..."</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"description"</span><span class="text-slate-300">: </span><span class="text-green-400">"After the devastating events..."</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"details"</span><span class="text-slate-300">: {
+    </span><span class="text-brand-400">"year"</span><span class="text-slate-300">: </span><span class="text-green-400">"2019"</span><span class="text-slate-300">,
+    </span><span class="text-brand-400">"genre"</span><span class="text-slate-300">: </span><span class="text-green-400">"Action, Adventure"</span><span class="text-slate-300">,
+    </span><span class="text-brand-400">"size"</span><span class="text-slate-300">: </span><span class="text-green-400">"1.2GB"</span><span class="text-slate-300">
+  }
+}</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint: Downloads -->
+        <div class="glass rounded-2xl overflow-hidden border border-brand-500/30 shadow-[0_0_30px_rgba(20,184,166,0.1)] relative">
+            <div class="absolute top-0 left-0 w-1 bg-gradient-to-b from-brand-400 to-blue-500 h-full"></div>
+            <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="px-3 py-1 rounded bg-blue-500/20 text-blue-400 font-mono text-sm font-bold">GET</span>
+                    <h2 class="text-2xl font-bold">/api/download</h2>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-bold uppercase tracking-widest border border-brand-500/20">Core API</span>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Extract direct, un-obfuscated download links. <strong class="text-white">Call this ONLY when a user clicks the Download button.</strong> The API scrapes in real-time to bypass rate limits and ensure links never expire.</p>
+                    
+                    <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Parameters</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-sm">
+                            <code class="text-brand-400 font-mono">url</code>
+                            <span class="text-slate-500">(required)</span>
+                            <span class="text-slate-300">The full Nkiri URL for the movie.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
+                    <div class="text-slate-500 mb-2">// Request: /api/download?url=https://thenkiri.com.ng/avengers/</div>
+<pre><span class="text-slate-300">{
+  </span><span class="text-brand-400">"title"</span><span class="text-slate-300">: </span><span class="text-green-400">"Avengers Endgame"</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://thenkiri.com.ng/avengers/"</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"links"</span><span class="text-slate-300">: [
+    {
+      </span><span class="text-brand-400">"label"</span><span class="text-slate-300">: </span><span class="text-green-400">"Download 720p"</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://mediafire.com/..."</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"host"</span><span class="text-slate-300">: </span><span class="text-green-400">"mediafire.com"</span><span class="text-slate-300">
+    },
+    {
+      </span><span class="text-brand-400">"label"</span><span class="text-slate-300">: </span><span class="text-green-400">"Download 1080p"</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://gofile.io/..."</span><span class="text-slate-300">,
+      </span><span class="text-brand-400">"host"</span><span class="text-slate-300">: </span><span class="text-green-400">"gofile.io"</span><span class="text-slate-300">
+    }
+  ],
+  </span><span class="text-brand-400">"count"</span><span class="text-slate-300">: </span><span class="text-purple-400">2</span><span class="text-slate-300">
+}</span></pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-slate-900/50 py-12 text-center text-slate-500">
+        <p>Built for the Animate Player Project. Fast, headless, and unmetered.</p>
+    </footer>
+
+</body>
+</html>

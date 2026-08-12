@@ -14,7 +14,7 @@ from urllib.parse import urljoin, urlparse, unquote
 
 import cloudscraper
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -33,6 +33,10 @@ log = logging.getLogger("nkiri")
 
 BASE = "https://thenkiri.com.ng"
 FILE_EXT_RE = re.compile(r'\.(mp4|mkv|avi|mov|webm)(\?|#|$)', re.I)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
