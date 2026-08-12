@@ -477,6 +477,71 @@ def download():
     })
 
 
+@app.route("/api/download_by_title")
+@limiter.limit("15 per minute")
+def download_by_title():
+    title_query = request.args.get("title", "").strip()
+    if not title_query:
+        return jsonify({"error": "title required"}), 400
+    
+    log.info(f"DOWNLOAD_BY_TITLE {title_query}")
+    try:
+        s = make_session()
+        
+        # 1. Search for the title
+        log.info(f"Searching for title: {title_query}")
+        search_url = f"{BASE}/?s={title_query.replace(' ', '+')}&paged=1"
+        r, body = fetch(s, search_url)
+        log.info(f"Fetched search page. Status: {r.status_code}, URL: {r.url}")
+        soup = BeautifulSoup(body, "lxml")
+        
+        # Check if WordPress redirected directly to the movie post
+        is_movie = False
+        og_type = soup.find("meta", property="og:type")
+        if og_type and og_type.get("content") == "article":
+            is_movie = True
+            
+        page_url = None
+        if is_movie:
+            page_url = r.url
+            log.info(f"Direct redirect to movie: {page_url}")
+        else:
+            log.info("Parsing search results...")
+            results = parse_movie_cards(soup)
+            log.info(f"Cards found: {len(results)}")
+            if not results:
+                # If they didn't find cards, look for any anchor that matches a movie slug just in case
+                for a in soup.find_all("a", href=True):
+                    href = a["href"].strip()
+                    m = MOVIE_URL_RE.match(href)
+                    if m and CONTENT_KW.search(m.group(1)):
+                        page_url = href
+                        log.info(f"Found fallback link: {page_url}")
+                        break
+                
+                if not page_url:
+                    log.error("No results found.")
+                    return jsonify({"error": "No results found on Nkiri for this title"}), 404
+            else:
+                page_url = results[0]["url"]
+                log.info(f"Using first card result: {page_url}")
+                
+        # 3. Fetch download links
+        log.info(f"Getting download links from: {page_url}")
+        title, links = get_download_links(s, page_url)
+        log.info(f"Done. Found {len(links)} links.")
+        
+        return jsonify({
+            "title": title, 
+            "url": page_url,
+            "links": links, 
+            "count": len(links),
+            "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        })
+    except Exception as e:
+        log.error(f"Download_by_title error: {e}")
+        return jsonify({"error": "Failed to resolve links", "detail": str(e)}), 502
+
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"})
