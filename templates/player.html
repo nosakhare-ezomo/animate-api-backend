@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AniMate Player Test</title>
+    
+    <!-- Video.js Base -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <!-- Video.js Fantasy Theme for better looks -->
+    <link href="https://unpkg.com/@videojs/themes@1/dist/fantasy/index.css" rel="stylesheet">
+    
+    <!-- Tailwind for layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HLS.js for raw M3U8 support just in case, though Video.js 8 has native HLS -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+    <style>
+        body {
+            background-color: #09090b;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        .video-js {
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-6 max-w-6xl mx-auto">
+    
+    <header class="mb-8 mt-4 border-b border-white/10 pb-6">
+        <h1 class="text-3xl font-bold mb-2 flex items-center gap-3">
+            <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            AniMate Player Sandbox
+        </h1>
+        <p class="text-gray-400">Test HLS streams (.m3u8) or direct MP4 links on the backend independently.</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Controls -->
+        <div class="lg:col-span-1 bg-white/5 rounded-xl p-6 border border-white/10 h-fit">
+            <h2 class="text-xl font-semibold mb-4 text-amber-500">Stream Source</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Video URL (.m3u8 or .mp4)</label>
+                <input type="text" id="streamUrl" placeholder="https://example.com/stream.m3u8" 
+                    class="w-full bg-black/50 border border-white/20 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 mb-2">
+                <p class="text-xs text-gray-500">Must be HTTPS. HTTP is usually blocked by modern browsers.</p>
+            </div>
+            
+            <button id="playBtn" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-4 rounded transition-colors shadow-lg shadow-amber-500/20">
+                Load & Play
+            </button>
+            
+            <div class="mt-8 border-t border-white/10 pt-6">
+                <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Examples</h3>
+                <div class="space-y-2 text-sm">
+                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
+                        Big Buck Bunny (Mux HLS)
+                    </button>
+                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4')">
+                        Tears of Steel (MP4)
+                    </button>
+                </div>
+            </div>
+            
+            <div id="statusAlert" class="mt-6 p-4 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm hidden">
+                Status updates will appear here.
+            </div>
+        </div>
+
+        <!-- Player Container -->
+        <div class="lg:col-span-3">
+            <div class="bg-black rounded-xl overflow-hidden shadow-2xl relative border border-white/10" style="aspect-ratio: 16/9;">
+                
+                <video
+                    id="animatePlayer"
+                    class="video-js vjs-theme-fantasy vjs-big-play-centered"
+                    controls
+                    preload="auto"
+                    poster=""
+                    data-setup='{"fluid": true}'
+                >
+                    <p class="vjs-no-js">
+                        To view this video please enable JavaScript, and consider upgrading to a
+                        web browser that
+                        <a href="https://videojs.com/html5-video-support/" target="_blank"
+                            >supports HTML5 video</a
+                        >
+                    </p>
+                </video>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize player
+        var player = videojs('animatePlayer', {
+            controls: true,
+            autoplay: false,
+            preload: 'auto',
+            playbackRates: [0.5, 1, 1.25, 1.5, 2]
+        });
+
+        const urlInput = document.getElementById('streamUrl');
+        const playBtn = document.getElementById('playBtn');
+        const statusAlert = document.getElementById('statusAlert');
+
+        function showStatus(msg, isError = false) {
+            statusAlert.textContent = msg;
+            statusAlert.classList.remove('hidden');
+            if (isError) {
+                statusAlert.className = 'mt-6 p-4 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm';
+            } else {
+                statusAlert.className = 'mt-6 p-4 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm';
+            }
+        }
+
+        function loadExample(url) {
+            urlInput.value = url;
+            playStream(url);
+        }
+
+        function playStream(url) {
+            if (!url) {
+                showStatus("Please enter a valid URL.", true);
+                return;
+            }
+            
+            try {
+                showStatus("Loading stream...");
+                
+                // Determine type
+                let type = 'video/mp4';
+                if (url.includes('.m3u8')) type = 'application/x-mpegURL';
+                else if (url.includes('.mkv')) type = 'video/webm'; // VJS handles MKV decently via webm MIME fallback sometimes
+                
+                player.src({
+                    src: url,
+                    type: type
+                });
+                
+                player.ready(function() {
+                    var promise = player.play();
+                    
+                    if (promise !== undefined) {
+                        promise.then(function() {
+                            showStatus("Playing successfully!");
+                        }).catch(function(error) {
+                            showStatus("Playback error or autoplay blocked: " + error, true);
+                        });
+                    }
+                });
+                
+            } catch (err) {
+                showStatus("Error loading stream: " + err, true);
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            playStream(urlInput.value.trim());
+        });
+        
+        // Handle enter key
+        urlInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                playStream(urlInput.value.trim());
+            }
+        });
+        
+        // Player error handling
+        player.on('error', function() {
+            var error = player.error();
+            if(error) {
+               showStatus(`Video Error [${error.code}]: ${error.message}`, true);
+            }
+        });
+    </script>
+</body>
+</html>

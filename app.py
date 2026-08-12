@@ -38,6 +38,10 @@ FILE_EXT_RE = re.compile(r'\.(mp4|mkv|avi|mov|webm)(\?|#|$)', re.I)
 def index():
     return render_template('index.html')
 
+@app.route('/player')
+def player_test():
+    return render_template('player.html')
+
 
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
 def make_session():
