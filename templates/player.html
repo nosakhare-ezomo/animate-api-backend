@@ -47,27 +47,27 @@
         
         <!-- Controls -->
         <div class="lg:col-span-1 bg-white/5 rounded-xl p-6 border border-white/10 h-fit">
-            <h2 class="text-xl font-semibold mb-4 text-amber-500">Stream Source</h2>
+            <h2 class="text-xl font-semibold mb-4 text-amber-500">Test a Movie</h2>
             
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Video URL (.m3u8 or .mp4)</label>
-                <input type="text" id="streamUrl" placeholder="https://example.com/stream.m3u8" 
+                <label class="block text-sm font-medium text-gray-300 mb-2">TMDB Movie ID</label>
+                <input type="text" id="tmdbInput" placeholder="e.g. 299534" 
                     class="w-full bg-black/50 border border-white/20 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 mb-2">
-                <p class="text-xs text-gray-500">Must be HTTPS. HTTP is usually blocked by modern browsers.</p>
+                <p class="text-xs text-gray-500">Enter a TMDB ID to automatically fetch and play the Vyla stream.</p>
             </div>
             
             <button id="playBtn" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-4 rounded transition-colors shadow-lg shadow-amber-500/20">
-                Load & Play
+                Load Movie Stream
             </button>
             
             <div class="mt-8 border-t border-white/10 pt-6">
                 <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Examples</h3>
                 <div class="space-y-2 text-sm">
-                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
-                        Big Buck Bunny (Mux HLS)
+                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('299534')">
+                        Avengers: Endgame (299534)
                     </button>
-                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4')">
-                        Tears of Steel (MP4)
+                    <button class="text-amber-500 hover:text-amber-400 text-left w-full hover:underline truncate" onclick="loadExample('157336')">
+                        Interstellar (157336)
                     </button>
                 </div>
             </div>
@@ -111,7 +111,7 @@
             playbackRates: [0.5, 1, 1.25, 1.5, 2]
         });
 
-        const urlInput = document.getElementById('streamUrl');
+        const tmdbInput = document.getElementById('tmdbInput');
         const playBtn = document.getElementById('playBtn');
         const statusAlert = document.getElementById('statusAlert');
 
@@ -125,27 +125,60 @@
             }
         }
 
-        function loadExample(url) {
-            urlInput.value = url;
-            playStream(url);
+        function loadExample(id) {
+            tmdbInput.value = id;
+            fetchAndPlay(id);
         }
 
-        function playStream(url) {
-            if (!url) {
-                showStatus("Please enter a valid URL.", true);
+        async function fetchAndPlay(tmdbId) {
+            if (!tmdbId || isNaN(tmdbId)) {
+                showStatus("Please enter a valid TMDB Movie ID (numbers only).", true);
                 return;
             }
             
             try {
-                showStatus("Loading stream...");
+                showStatus("Fetching streams from Vyla API...");
                 
-                // Determine type
+                // Fetch from the Vyla Backend API
+                const response = await fetch(`https://animate-vyla-backend.onrender.com/api/downloads/movie/${tmdbId}`);
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.downloads || data.downloads.length === 0) {
+                    throw new Error("No streams found for this movie.");
+                }
+                
+                // Filter out trendimovies if preferred, or just pick the first valid link
+                const validLinks = data.downloads.filter(dl => {
+                    try {
+                        const urlParams = new URL(dl.url).searchParams;
+                        const targetUrl = urlParams.get('url');
+                        if (targetUrl) {
+                            const decoded = atob(targetUrl);
+                            if (decoded.toLowerCase().includes('trendimovies')) return false;
+                        }
+                    } catch (e) {}
+                    return !dl.url.toLowerCase().includes('trendimovies');
+                });
+                
+                if (validLinks.length === 0) {
+                    showStatus("All available streams are from Trendimovies (filtered).", true);
+                    return;
+                }
+                
+                // Pick the highest quality or first link
+                const streamUrl = validLinks[0].url;
+                showStatus(`Loading stream... (${validLinks[0].quality || 'Auto'})`);
+                
                 let type = 'video/mp4';
-                if (url.includes('.m3u8')) type = 'application/x-mpegURL';
-                else if (url.includes('.mkv')) type = 'video/webm'; // VJS handles MKV decently via webm MIME fallback sometimes
+                if (streamUrl.includes('.m3u8')) type = 'application/x-mpegURL';
+                else if (streamUrl.includes('.mkv')) type = 'video/webm'; 
                 
                 player.src({
-                    src: url,
+                    src: streamUrl,
                     type: type
                 });
                 
@@ -162,18 +195,18 @@
                 });
                 
             } catch (err) {
-                showStatus("Error loading stream: " + err, true);
+                showStatus("Error: " + err.message, true);
             }
         }
 
         playBtn.addEventListener('click', () => {
-            playStream(urlInput.value.trim());
+            fetchAndPlay(tmdbInput.value.trim());
         });
         
         // Handle enter key
-        urlInput.addEventListener('keypress', function (e) {
+        tmdbInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                playStream(urlInput.value.trim());
+                fetchAndPlay(tmdbInput.value.trim());
             }
         });
         
