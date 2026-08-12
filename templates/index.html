@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nkiri API Documentation</title>
+    <title>Vyla API Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -56,8 +56,8 @@
     <nav class="fixed top-0 w-full z-50 glass border-b border-gray-800">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">N</div>
-                <span class="text-xl font-bold tracking-tight">Nkiri API</span>
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">V</div>
+                <span class="text-xl font-bold tracking-tight">Vyla API</span>
             </div>
             <div class="flex items-center gap-6 text-sm font-medium text-slate-300">
                 <a href="#endpoints" class="hover:text-white transition-colors">Endpoints</a>
@@ -75,7 +75,7 @@
         </div>
         <div class="max-w-6xl mx-auto px-6 relative z-10 text-center">
             <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
-                The unofficial <span class="gradient-text">Nkiri</span> REST API
+                The unofficial <span class="gradient-text">Vyla</span> REST API
             </h1>
             <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
                 Drop this headless scraper into any website. Search movies, fetch metadata, and extract direct download links in milliseconds. Always live, never cached.
@@ -89,6 +89,18 @@
 
     <!-- Base URL -->
     <section class="max-w-6xl mx-auto px-6 mb-16">
+        
+        <!-- Interactive Player Sandbox -->
+        <div class="mb-12 border border-brand-500/30 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(20,184,166,0.15)] bg-black">
+            <div class="bg-slate-900 border-b border-white/10 px-6 py-3 flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    Live Player Sandbox
+                </h2>
+                <a href="/player" target="_blank" class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Open in new tab ↗</a>
+            </div>
+            <iframe src="/player" class="w-full" style="height: 600px; border: none;"></iframe>
+        </div>
         <div class="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
                 <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">Base URL</h3>
@@ -112,7 +124,7 @@
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Search for movies and TV shows across the Nkiri database. Call this endpoint when the user types in your search box.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Search for movies and TV shows across the Vyla database. Call this endpoint when the user types in your search box.</p>
                     
                     <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Parameters</h4>
                     <ul class="space-y-3">
@@ -160,13 +172,6 @@
                         <li class="flex items-start gap-3 text-sm">
                             <code class="text-brand-400 font-mono">url</code>
                             <span class="text-slate-500">(required)</span>
-                            <span class="text-slate-300">The full Nkiri URL for the movie, returned from the search endpoint.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="bg-slate-900 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
-                    <div class="text-slate-500 mb-2">// Request: /api/movie?url=https://thenkiri.com.ng/avengers-endgame/</div>
-<pre><span class="text-slate-300">{
   </span><span class="text-brand-400">"title"</span><span class="text-slate-300">: </span><span class="text-green-400">"Avengers Endgame"</span><span class="text-slate-300">,
   </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://thenkiri.com.ng/avengers-endgame/"</span><span class="text-slate-300">,
   </span><span class="text-brand-400">"thumbnail"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://..."</span><span class="text-slate-300">,
@@ -200,15 +205,15 @@
                         <li class="flex items-start gap-3 text-sm">
                             <code class="text-brand-400 font-mono">url</code>
                             <span class="text-slate-500">(required)</span>
-                            <span class="text-slate-300">The full Nkiri URL for the movie.</span>
+                            <span class="text-slate-300">The full Vyla URL for the movie.</span>
                         </li>
                     </ul>
                 </div>
                 <div class="bg-slate-900 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
-                    <div class="text-slate-500 mb-2">// Request: /api/download?url=https://thenkiri.com.ng/avengers/</div>
+                    <div class="text-slate-500 mb-2">// Request: /api/download?url=https://vyla.cc/avengers/</div>
 <pre><span class="text-slate-300">{
   </span><span class="text-brand-400">"title"</span><span class="text-slate-300">: </span><span class="text-green-400">"Avengers Endgame"</span><span class="text-slate-300">,
-  </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://thenkiri.com.ng/avengers/"</span><span class="text-slate-300">,
+  </span><span class="text-brand-400">"url"</span><span class="text-slate-300">: </span><span class="text-green-400">"https://vyla.cc/avengers/"</span><span class="text-slate-300">,
   </span><span class="text-brand-400">"links"</span><span class="text-slate-300">: [
     {
       </span><span class="text-brand-400">"label"</span><span class="text-slate-300">: </span><span class="text-green-400">"Download 720p"</span><span class="text-slate-300">,
